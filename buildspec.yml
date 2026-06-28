@@ -13,23 +13,19 @@ phases:
     runtime-versions:
       python: 3.12
 
+  
+      
   build:
     commands:
       - echo "Packaging Layer..."
-      - cd layers/common_layer
-      - pip install -r requirements.txt -t python/
-      - zip -r ../../common-layer.zip python
-      - cd ../..
+      - pip install -r layers/common_layer/requirements.txt -t layers/common_layer/python/
+      - zip -r common-layer.zip layers/common_layer/python
 
       - echo "Packaging User Lambda..."
-      - cd lamdas/user_service
-      - zip -r ../../user-service.zip .
-      - cd ../..
+      - zip -r user-service.zip lamdas/user_service/
 
       - echo "Packaging Order Lambda..."
-      - cd lamdas/order_service
-      - zip -r ../../order-service.zip .
-      - cd ../..
+      - zip -r order-service.zip lamdas/order_service/
 
   post_build:
     commands:
