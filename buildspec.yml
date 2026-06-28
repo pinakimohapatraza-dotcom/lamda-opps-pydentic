@@ -12,14 +12,16 @@ phases:
   install:
     runtime-versions:
       python: 3.12
+    commands:
+      - echo "Installing layer dependencies..."
+      - cd layers/common_layer/python
+      - pip install -r requirements.txt -t .
+      - cd ../../../
 
   build:
     commands:
-      - echo "Installing layer dependencies..."
-      - cd layers/common_layer
-      - pip install -r requirements.txt -t python/
-
       - echo "Packaging Lambda Layer..."
+      - cd layers/common_layer
       - zip -r ../../common-layer.zip python
       - cd ../..
 
@@ -37,38 +39,22 @@ phases:
     commands:
       - echo "Publishing new Layer Version..."
       - LAYER_VERSION=$(aws lambda publish-layer-version --layer-name $LAYER_NAME --zip-file fileb://common-layer.zip --query Version --output text)
-
       - echo "Published Layer Version: $LAYER_VERSION"
 
-      - echo "Waiting for layer propagation..."
-      - sleep 10
-
-      # Update User Lambda Code
       - echo "Updating User Lambda Code..."
       - aws lambda update-function-code --function-name $USER_LAMBDA_NAME --zip-file fileb://user-service.zip
-
-      - echo "Waiting for User Lambda code update..."
       - aws lambda wait function-updated --function-name $USER_LAMBDA_NAME
 
-      # Update Order Lambda Code
       - echo "Updating Order Lambda Code..."
       - aws lambda update-function-code --function-name $ORDER_LAMBDA_NAME --zip-file fileb://order-service.zip
-
-      - echo "Waiting for Order Lambda code update..."
       - aws lambda wait function-updated --function-name $ORDER_LAMBDA_NAME
 
-      # Attach latest Layer to User Lambda
       - echo "Attaching latest Layer to User Lambda..."
       - aws lambda update-function-configuration --function-name $USER_LAMBDA_NAME --layers arn:aws:lambda:$AWS_REGION:$AWS_ACCOUNT_ID:layer:$LAYER_NAME:$LAYER_VERSION
-
-      - echo "Waiting for User Lambda config update..."
       - aws lambda wait function-updated --function-name $USER_LAMBDA_NAME
 
-      # Attach latest Layer to Order Lambda
       - echo "Attaching latest Layer to Order Lambda..."
       - aws lambda update-function-configuration --function-name $ORDER_LAMBDA_NAME --layers arn:aws:lambda:$AWS_REGION:$AWS_ACCOUNT_ID:layer:$LAYER_NAME:$LAYER_VERSION
-
-      - echo "Waiting for Order Lambda config update..."
       - aws lambda wait function-updated --function-name $ORDER_LAMBDA_NAME
 
 artifacts:
