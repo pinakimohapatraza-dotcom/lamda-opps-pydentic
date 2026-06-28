@@ -12,7 +12,7 @@ class UserService:
         self.__validate_age(user.age)
 
         result = self.repo.save(user)
-        self.sqsclient.send_message(user)
+        self.sqsclient.send_message(user.model_dump())
 
         return {
             "message": "User created successfully",
