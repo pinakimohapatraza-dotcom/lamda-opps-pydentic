@@ -1,9 +1,5 @@
 from utils.response import Response
-from models.user_model import UserModel
-from services.user_service import UserService
-from repositories.user_repository import UserRepository
-from exceptions.validation_exception import ValidationException
-
+import json
 
 resp = Response()
 
@@ -12,19 +8,22 @@ def lambda_handler(event, context):
 
     try:
         print(context.aws_request_id)
-        print(context.get_remaining_time_in_millis())
-        user = UserModel(**event)
+        for record in event["Records"]:
+            
 
-        repo = UserRepository()
+            body = json.loads(record["body"])
 
-        service = UserService(repo)
+            order = {
+                "user_id": body["user_id"],
+                "item": body["item"]
+            }
 
-        result = service.create_user(user)
+            print("Processing order:", order)
+        
 
-        return resp.success(result)
+        return resp.success("Order processed successfully")
 
-    except ValidationException as e:
-        return resp.error(str(e))
+    
 
     except Exception as e:
         return resp.error(str(e))

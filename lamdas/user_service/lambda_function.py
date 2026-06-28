@@ -1,30 +1,35 @@
+
 from utils.response import Response
-import json
+from models.user_model import UserModel
+from services.user_service import UserService
+from repositories.user_repository import UserRepository
+from exceptions.validation_exception import ValidationException
+from sqs.sqs_service import  SQSService
+
 
 resp = Response()
+sqs = SQSService()
 
 
 def lambda_handler(event, context):
 
     try:
         print(context.aws_request_id)
-        for record in event["Records"]:
-            
+        print(context.get_remaining_time_in_millis())
+        user = UserModel(**event)
 
-            body = json.loads(record["body"])
+        repo = UserRepository()
 
-            order = {
-                "user_id": body["user_id"],
-                "item": body["item"]
-            }
+        service = UserService(repo, sqs)
 
-            print("Processing order:", order)
-        
+        result = service.create_user(user)
 
-        return resp.success("Order processed successfully")
+        return resp.success(result)
 
-    
+    except ValidationException as e:
+        return resp.error(str(e))
 
     except Exception as e:
         return resp.error(str(e))
+
 

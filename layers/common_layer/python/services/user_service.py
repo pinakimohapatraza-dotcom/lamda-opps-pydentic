@@ -1,15 +1,18 @@
 from exceptions.validation_exception import ValidationException
 
 
+
 class UserService:
 
-    def __init__(self, repo):
+    def __init__(self, repo, sqs):
         self.repo = repo
+        self.sqsclient=  sqs
 
     def create_user(self, user):
         self.__validate_age(user.age)
 
         result = self.repo.save(user)
+        self.sqsclient.send_message(user)
 
         return {
             "message": "User created successfully",
