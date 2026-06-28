@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  UserServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.12
+      CodeUri: lamdas/user_service/
+      Layers:
+        - !Ref CommonLayer
+
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: common-layer
+      ContentUri: layers/common_layer/python/
+      CompatibleRuntimes:
+        - python3.12
+    Metadata:
+      BuildMethod: python3.12

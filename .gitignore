@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env/
+.venv/
+
+# AWS SAM build artifacts
+.aws-sam/
+
+# AWS Lambda packaged artifacts
+*.zip
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.*
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# Local config
+samconfig.toml
+
+# Secrets
+secrets.json
+config.local.json
+
+# Terraform (if later used)
+.terraform/
+*.tfstate
+*.tfstate.backup
