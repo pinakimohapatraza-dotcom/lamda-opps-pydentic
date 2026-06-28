@@ -11,7 +11,7 @@ class Response:
 
     def error(self, msg):
         return {
-            statusCode : 500,
+            "statusCode" : 500,
             "body": msg
 
         }

@@ -1,0 +1,52 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_ACCOUNT_ID: "719905538647"
+    AWS_REGION: "ap-southeast-2"
+    LAYER_NAME: "common-utils-layer"
+    USER_LAMBDA_NAME: "user-service"
+    ORDER_LAMBDA_NAME: "order-service"
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+
+  build:
+    commands:
+      - echo "Packaging Layer..."
+      - cd layers/common_layer
+      - pip install -r requirements.txt -t python/
+      - zip -r ../../common-layer.zip python
+      - cd ../..
+
+      - echo "Packaging User Lambda..."
+      - cd lamdas/user_service
+      - zip -r ../../user-service.zip .
+      - cd ../..
+
+      - echo "Packaging Order Lambda..."
+      - cd lamdas/order_service
+      - zip -r ../../order-service.zip .
+      - cd ../..
+
+  post_build:
+    commands:
+      - echo "Publishing Layer..."
+      - LAYER_VERSION=$(aws lambda publish-layer-version --layer-name $LAYER_NAME --zip-file fileb://common-layer.zip --query Version --output text)
+
+      - sleep 10
+
+      - aws lambda update-function-code --function-name $USER_LAMBDA_NAME --zip-file fileb://user-service.zip
+      - aws lambda update-function-code --function-name $ORDER_LAMBDA_NAME --zip-file fileb://order-service.zip
+
+      - aws lambda update-function-configuration --function-name $USER_LAMBDA_NAME --layers arn:aws:lambda:$AWS_REGION:$AWS_ACCOUNT_ID:layer:$LAYER_NAME:$LAYER_VERSION
+
+      - aws lambda update-function-configuration --function-name $ORDER_LAMBDA_NAME --layers arn:aws:lambda:$AWS_REGION:$AWS_ACCOUNT_ID:layer:$LAYER_NAME:$LAYER_VERSION
+
+artifacts:
+  files:
+    - common-layer.zip
+    - user-service.zip
+    - order-service.zip
