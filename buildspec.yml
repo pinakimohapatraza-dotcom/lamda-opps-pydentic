@@ -18,7 +18,7 @@ phases:
   build:
     commands:
       - echo "Packaging Layer..."
-      - pip install -r layers/common_layer/requirements.txt -t layers/common_layer/python/
+      - pip install -r layers/common_layer/python/requirements.txt -t layers/common_layer/python/
       - zip -r common-layer.zip layers/common_layer/python
 
       - echo "Packaging User Lambda..."
